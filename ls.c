@@ -3,6 +3,24 @@
 #include "user.h"
 #include "fs.h"
 
+int
+wildcard(char *pattern, char *name){
+if(*pattern == '\0') return *name== '\0';
+
+if(*pattern == '*'){
+
+do{
+if(wildcard(pattern+1, name)) return 1;
+}
+while(*name++ != '\0');
+}
+
+if(*pattern == *name) return wildcard(pattern+1, name+1);
+
+return 0;
+}
+
+
 char*
 fmtname(char *path)
 {
@@ -23,7 +41,7 @@ fmtname(char *path)
 }
 
 void
-ls(char *path)
+ls(char *path, char *pattern)
 {
   char buf[512], *p;
   int fd;
@@ -55,8 +73,11 @@ ls(char *path)
     p = buf+strlen(buf);
     *p++ = '/';
     while(read(fd, &de, sizeof(de)) == sizeof(de)){
-      if(de.inum == 0)
+	 if(de.inum == 0)
         continue;
+	if(pattern && !wildcard(pattern, de.name)){
+	 continue;
+	}
       memmove(p, de.name, DIRSIZ);
       p[DIRSIZ] = 0;
       if(stat(buf, &st) < 0){
@@ -65,7 +86,6 @@ ls(char *path)
       }
       printf(1, "%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
     }
-    break;
   }
   close(fd);
 }
@@ -74,12 +94,14 @@ int
 main(int argc, char *argv[])
 {
   int i;
-
   if(argc < 2){
-    ls(".");
+    ls(".", 0);
     exit();
   }
-  for(i=1; i<argc; i++)
-    ls(argv[i]);
+  for(i=1; i<argc; i++){
+	if(strchr(argv[i], '*')) ls(".", argv[i]);
+	else
+   	 ls(argv[i], 0);
+	}
   exit();
 }
