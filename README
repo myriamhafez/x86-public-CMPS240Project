@@ -1,3 +1,5 @@
+**THE OPERATING SYSTEM DOES NOT BELONG TO ME, IT BELONGS TO MIT. THIS IS A COURSE PROJECT THAT MODIFIES SAID OPERATING SYSTEM**
+
 NOTE: we have stopped maintaining the x86 version of xv6, and switched
 our efforts to the RISC-V version
 (https://github.com/mit-pdos/xv6-riscv.git)
