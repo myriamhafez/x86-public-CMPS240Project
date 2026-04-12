@@ -6,6 +6,12 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "spinlock.h"
+
+extern struct{
+struct spinlock lock;
+struct proc proc[NPROC];
+}ptable;
 
 int
 sys_fork(void)
@@ -88,4 +94,22 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+int
+sys_getProcCount(void)
+{
+struct proc *p;
+int n  = 0;
+
+acquire(&ptable.lock);
+p = ptable.proc;
+
+while (p < &ptable.proc[NPROC]){
+if(p->state !=  UNUSED) n++;
+
+p++;
+ }
+release(&ptable.lock);
+return n;
 }
