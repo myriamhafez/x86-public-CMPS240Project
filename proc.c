@@ -75,7 +75,7 @@ allocproc(void)
 {
   struct proc *p;
   char *sp;
-
+  p->priority = 10;
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -275,7 +275,7 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+  struct proc *top = 0;
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -283,6 +283,7 @@ wait(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != curproc)
         continue;
+      if(top == 0 || p->priority < top->priority) top = p;
       havekids = 1;
       if(p->state == ZOMBIE){
         // Found one.
