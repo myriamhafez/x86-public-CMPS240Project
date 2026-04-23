@@ -113,3 +113,24 @@ p++;
 release(&ptable.lock);
 return n;
 }
+
+int
+sys_clone(void)
+{
+  void (*fn)(void*,void*);
+  void *arg1, *arg2, *stack;
+ 
+  if(argint(0, (int*)&fn)    < 0) return -1;
+  if(argint(1, (int*)&arg1)  < 0) return -1;
+  if(argint(2, (int*)&arg2)  < 0) return -1;
+  if(argint(3, (int*)&stack) < 0) return -1;
+ 
+  return clone(fn, arg1, arg2, stack);
+}
+int
+sys_join(void)
+{
+void **stack;
+if(argint(0, (int*)&stack) < 0) return -1;
+return join(stack);
+}
