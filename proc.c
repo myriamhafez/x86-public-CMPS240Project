@@ -227,6 +227,7 @@ clone(void(*fn)(void*,void*), void *arg1, void *arg2, void *stack)
 int i, pid;
 struct proc *np;
 struct proc *curproc = myproc();
+uint sp = (uint)stack + PGSIZE;   
 
 if(stack == 0 || (uint)stack % PGSIZE != 0) return -1;
 
