@@ -1,0 +1,29 @@
+#include "types.h"
+#include "stat.h"
+#include "user.h"
+#include "fs.h"
+
+int compare(char *f1, char *f2){
+struct dirent de;
+struct stat st;
+
+int fd1 = open(f1, O_RDONLY);
+int fd2 = open(f2, O_RDONLY);
+
+if(fd1 < 0){
+printf(1,"cannot open %s\n", f1);
+return;
+}
+
+if(fd2 < 0){
+printf(1,"cannot open %s\n", f2);
+return;
+}
+
+  if(fstat(fd1, &st) < 0){
+    printf(1, "cannot stat %s\n", f1);
+    close(fd);
+    return;
+  }
+
+}

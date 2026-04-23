@@ -54,7 +54,7 @@ void tree(char *path){
       continue;
     }
 
-    printf(1, "%s\n", fileName);
+    printf(1, "	  %s\n", fileName);
 
     if(st.type == T_DIR)
       tree(fileName);
@@ -64,7 +64,6 @@ void tree(char *path){
 }
 
 int main(int argc, char *argv[]){
-  printf(1, "tree getting started\n");
   if(argc < 2)
     tree(".");
   else
