@@ -74,7 +74,7 @@ continue;
 }
 
 if(strcmp(line1, line2) != 0){
-printf(1, "%d < %s", linenum, line1);
+printf(1, "%d > %s", linenum, line1);
 printf(1, "%d > %s", linenum, line2);
 differences++;
 }

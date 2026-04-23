@@ -185,6 +185,7 @@ UPROGS=\
 	_getProcCount\
 	_login\
 	_tree\
+	_diff\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
