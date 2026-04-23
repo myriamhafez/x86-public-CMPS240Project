@@ -11,7 +11,25 @@ void tree(char *path){
   char *p;
 
   if((fd = open(path, 0)) < 0){
-    printf("cannot open %s\n", path);
+    printf(1, "cannot open %s\n", path);
+    return;
+  }
+
+  if(fstat(fd, &st) < 0){
+    printf(1, "cannot stat %s\n", path);
+    close(fd);
+    return;
+  }
+
+  if(st.type != T_DIR){
+    printf(1, "%s is not a directory\n", path);
+    close(fd);
+    return;
+  }
+
+  if(strlen(path) + 1 + DIRSIZ + 1 > sizeof(fileName)){
+    printf(1, "path too long\n");
+    close(fd);
     return;
   }
 
@@ -29,14 +47,14 @@ void tree(char *path){
     strcpy(fileName, path);
     p = fileName + strlen(fileName);
     *p++ = '/';
+    strcpy(p, name);
 
-    memmove(p, name, strlen(name));
-    p[strlen(name)] = 0;
-
-    if(stat(fileName, &st) < 0)
+    if(stat(fileName, &st) < 0){
+      printf(1, "cannot stat %s\n", fileName);
       continue;
+    }
 
-    printf("%s\n", fileName);
+    printf(1, "%s\n", fileName);
 
     if(st.type == T_DIR)
       tree(fileName);
@@ -46,12 +64,10 @@ void tree(char *path){
 }
 
 int main(int argc, char *argv[]){
-  printf("tree getting started\n");
-
+  printf(1, "tree getting started\n");
   if(argc < 2)
     tree(".");
   else
     tree(argv[1]);
-
   exit();
 }
