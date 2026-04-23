@@ -221,6 +221,85 @@ fork(void)
   return pid;
 }
 
+int
+clone(void(*fn)(void*,void*), void *arg1, void *arg2, void *stack)
+{
+int i, pid;
+struct proc *np;
+struct proc *curproc = myproc();
+
+if(stack == 0 || (uint)stack % PGSIZE != 0) return -1;
+
+if((np = allocproc()) == 0) return -1;
+np->pgdir = curproc->pgdir;
+np->sz= curproc->sz;
+np->parent = curproc;
+*np->tf = *curproc->tf;
+
+sp -= 4; *(uint*)sp = (uint)arg2;
+sp -= 4; *(uint*)sp = (uint)arg1;
+sp -= 4; *(uint*)sp = 0xffffffff;
+
+np->tf->eip = (uint)fn;
+np->tf->esp = sp;
+np->tf->eax = 0;
+
+
+for(i = 0; i < NOFILE; i++)
+if(curproc->ofile[i])
+np->ofile[i] = filedup(curproc->ofile[i]);
+np->cwd = idup(curproc->cwd);
+
+safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+
+np->threadstack = stack;
+pid = np->pid;
+
+acquire(&ptable.lock);
+np->state = RUNNABLE;
+release(&ptable.lock);
+
+return pid; 
+}
+
+int
+join(void **stack)
+{
+struct proc *p;
+int havekids, pid;
+struct proc *curproc = myproc();
+
+acquire(&ptable.lock);
+for(;;){
+havekids = 0;
+for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+if(p->parent != curproc || p->pgdir != curproc->pgdir)
+continue;
+havekids = 1;
+if(p->state == ZOMBIE){
+pid = p->pid;
+kfree(p->kstack);
+p->kstack = 0;
+if(stack)
+*stack = p->threadstack;
+p->threadstack = 0;
+p->pid = 0;
+p->parent = 0;
+p->name[0] = 0;
+p->killed = 0;
+p->state = UNUSED;
+release(&ptable.lock);
+return pid;
+}
+}
+if(!havekids || curproc->killed){
+release(&ptable.lock);
+return -1;
+}
+sleep(curproc, &ptable.lock);
+ }
+}
+
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
