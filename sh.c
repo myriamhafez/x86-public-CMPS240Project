@@ -4,6 +4,24 @@
 #include "user.h"
 #include "fcntl.h"
 
+#define HISTORY_MAX 10
+char history[HISTORY_MAX][100];
+int history_count = 0;
+
+void add_history(char *cmd){
+if(history_count < HISTORY_MAX){
+strcpy(history[history_count], cmd);
+history_count++;
+}
+}
+
+void print_history(){
+int i;
+for(i = 0; i < history_count; i++)
+printf(1, "%d  %s", i+1, history[i]);
+}
+
+
 // Parsed command representation
 #define EXEC  1
 #define REDIR 2
@@ -164,6 +182,12 @@ main(void)
         printf(2, "cannot cd %s\n", buf+3);
       continue;
     }
+    if(buf[0] == 'h' && buf[1] == 'i' && buf[2] == 's'
+    && buf[3] == 't' && buf[4] == 'o' && buf[5] == 'r' && buf[6] == 'y'){
+print_history();
+      continue;
+    }
+add_history(buf);
     if(fork1() == 0)
       runcmd(parsecmd(buf));
     wait();
