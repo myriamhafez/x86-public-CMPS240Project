@@ -19,12 +19,12 @@ char name[DIRSIZ+1];
 memmove(name, de.name, DIRSIZ);
 name[DIRSIZ]=0;
 
-if(strcmp(de.name, ".") || strcmp(de.name, "..")) continue;
+if(strcmp(name, ".") == 0 || strcmp(name, "..") == 0) continue;
 
 strcpy(fileName, path);
 p = fileName + strlen(fileName);
 *p++ = '/';
-memmove(p, de.name, DIRSIZ);
+memmove(p, name, DIRSIZ);
 p[DIRSIZ] =0;
 
 if(stat(fileName, &st) <0) continue;
