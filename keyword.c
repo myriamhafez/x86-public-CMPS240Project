@@ -3,6 +3,7 @@
 #include "stat.h"
 #include "user.h"
 #include "fs.h"
+#include "fcntl.h"
 
 void findKeyword(char *fileName, char *word){
 int fd;
