@@ -187,6 +187,7 @@ UPROGS=\
 	_tree\
 	_diff\
 	_testthreads\
+	_keyword\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
