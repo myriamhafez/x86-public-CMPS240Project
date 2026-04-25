@@ -41,11 +41,15 @@ word_len++;
 
 
 }
+if(word_len > 0){
+wordBuf[word_len] = '\0';
+if (strcmp(word, wordBuf) == 0)
+printf(1, "%s found at line %d\n", word, lineNum);
 }
-
 close(fd);
 
 }
+
 
 int main(int argc, char *argv[]){
 if(argc !=  3){
