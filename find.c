@@ -49,9 +49,11 @@ if(de.name == fileName)
 }
 
 int main(int argc, char *argv[]){
-  if(argc != 2)
-    printf(1, "please use find <filename> format.");
-  else
-    tree(argv[1]);
+  if(argc == 1 || argc > 2)
+    printf(1, "please use find <filename> || find <dirName> <fileName> format.");
+  else if(argc == 2)
+    tree(argv[0], argv[1]);
+else
+tree(".", argv[0]);
   exit();
 }
