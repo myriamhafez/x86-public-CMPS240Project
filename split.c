@@ -73,7 +73,7 @@ printf(2, "split: chunk size must be a positive number\n");
 fd = open(argv[1], 0);
 if (fd < 0) {
 printf(2, "split: cannot open %s\n", argv[1]);
-]exit();
+exit();
 }
 
 split(fd, chunk_size);
