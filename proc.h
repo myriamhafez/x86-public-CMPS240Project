@@ -50,8 +50,20 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   void *threadstack;
+int priority;
+int ticks_remaining;
+int cpu_bursts;
+int total_ticks;
+int last_run; 
 };
-
+#define MAX_PRIORITY  2
+#define HIGH_PRIORITY 0
+#define MED_PRIORITY  1
+#define LOW_PRIORITY  2
+#define HIGH_SLICE 5
+#define MED_SLICE  10
+#define LOW_SLICE  20
+#define BOOST_INTERVAL 100
 // Process memory is laid out contiguously, low addresses first:
 //   text
 //   original data and bss
