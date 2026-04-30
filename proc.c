@@ -656,3 +656,21 @@ c->proc = 0;
 release(&ptable.lock);
 }
 }
+void update_priority(struct proc *p) {
+if(p == 0) return;
+p->cpu_bursts = 0;
+if(p->priority > HIGH_PRIORITY)
+p->priority--;
+
+switch(p->priority){
+case HIGH_PRIORITY:
+p->ticks_remaining = HIGH_SLICE;
+break;
+case MED_PRIORITY:
+p->ticks_remaining = MED_SLICE;
+break;
+case LOW_PRIORITY:
+p->ticks_remaining = LOW_SLICE;
+break;
+}
+}
