@@ -23,3 +23,5 @@
 #define SYS_getProcCount 22
 #define SYS_clone  22
 #define SYS_join   23
+#define SYS_getticks 22
+#define SYS_getpriority 23
