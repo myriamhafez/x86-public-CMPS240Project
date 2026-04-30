@@ -43,6 +43,12 @@ trap(struct trapframe *tf)
     syscall();
     if(myproc()->killed)
       exit();
+    
+    // MLFQ: Update priority after system call
+    // System calls often indicate I/O operations, so boost priority
+    if(myproc() && myproc()->state == RUNNING)
+      update_priority(myproc());
+    
     return;
   }
 
@@ -54,6 +60,35 @@ trap(struct trapframe *tf)
       wakeup(&ticks);
       release(&tickslock);
     }
+    
+ 
+if(myproc() != 0 && myproc()->state == RUNNING){
+if(myproc()->ticks_remaining > 0)
+myproc()->ticks_remaining--;
+myproc()->total_ticks++;
+if(myproc()->ticks_remaining <= 0){
+
+myproc()->cpu_bursts++;
+
+if(myproc()->cpu_bursts > 3 && myproc()->priority < MAX_PRIORITY){
+myproc()->priority++;
+myproc()->cpu_bursts = 0;
+}
+
+switch(myproc()->priority){
+case HIGH_PRIORITY:
+myproc()->ticks_remaining = HIGH_SLICE;
+break;
+case MED_PRIORITY:
+myproc()->ticks_remaining = MED_SLICE;
+break;
+case LOW_PRIORITY:
+myproc()->ticks_remaining = LOW_SLICE;
+break;
+}
+}
+}
+    
     lapiceoi();
     break;
   case T_IRQ0 + IRQ_IDE:
@@ -100,11 +135,16 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
 
+
+
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
   if(myproc() && myproc()->state == RUNNING &&
-     tf->trapno == T_IRQ0+IRQ_TIMER)
-    yield();
+     tf->trapno == T_IRQ0+IRQ_TIMER){
+    // Only yield if time slice is exhausted (additional check for MLFQ)
+    if(myproc()->ticks_remaining <= 0)
+      yield();
+  }
 
   // Check if the process has been killed since we yielded
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
