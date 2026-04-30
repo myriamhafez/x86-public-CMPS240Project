@@ -106,7 +106,8 @@ extern int sys_uptime(void);
 extern int sys_getProcCount(void);
 extern int sys_clone(void);
 extern int sys_join(void);
- 
+ extern int sys_getticks(void);
+extern int sys_getpriority(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -133,6 +134,8 @@ static int (*syscalls[])(void) = {
 [SYS_getProcCount] sys_getProcCount,
 [SYS_clone]   sys_clone,
 [SYS_join]    sys_join,
+[SYS_getticks] sys_getticks,
+[SYS_getpriority] sys_getpriority,
 };
 
 void
