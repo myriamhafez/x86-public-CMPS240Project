@@ -611,14 +611,15 @@ procdump(void)
     cprintf("\n");
   }
 }
-struct proc* find_highest_priority(void){
+struct proc*
+find_highest_priority(void)
+{
 struct proc *p;
 struct proc *chosen = 0;
   
 for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 if(p->state != RUNNABLE)
 continue;
-      
 if(chosen == 0 || p->priority < chosen->priority)
 chosen = p;
 else if(p->priority == chosen->priority){
@@ -626,82 +627,32 @@ if(p->last_run < chosen->last_run)
 chosen = p;
 }
 }
-
-void update_priority(struct proc *p){
-if(p == 0) return;
-
-if(p->state == SLEEPING){
-if(p->priority > HIGH_PRIORITY)
-p->priority--;
-p->cpu_bursts = 0;
-}else{
-
-p->cpu_bursts++;
-if(p->cpu_bursts > 3 && p->priority < MAX_PRIORITY){
-p->priority++;
-p->cpu_bursts = 0;
-}
-}
-
-switch(p->priority){
-case HIGH_PRIORITY:
-p->ticks_remaining = HIGH_SLICE;
-break;
-case MED_PRIORITY:
-p->ticks_remaining = MED_SLICE;
-break;
-case LOW_PRIORITY:
-p->ticks_remaining = LOW_SLICE;
-break;
-}
-}
-
-void boost_priorities(void){
-struct proc *p;
   
-acquire(&ptable.lock);
-for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-if(p->state == RUNNABLE || p->state == SLEEPING){
-p->priority = HIGH_PRIORITY;
-p->cpu_bursts = 0;
-p->ticks_remaining = HIGH_SLICE;
-}
-}
-release(&ptable.lock);
+return chosen;
 }
 
-void scheduler(void){
+void
+scheduler(void)
+{
 struct proc *p;
-int boost_counter = 0;
+struct cpu *c = mycpu();
+c->proc = 0;
   
 for(;;){
 sti();
-
+    
 acquire(&ptable.lock);
-boost_counter++;
-if(boost_counter >= BOOST_INTERVAL){
-boost_counter = 0;
-boost_priorities();
-}
-
-p = find_highest_priority();   
-if(p == 0){
-release(&ptable.lock);
-continue;
-}
-
+p = find_highest_priority();
+    
+if(p != 0){
+c->proc = p;
+switchuvm(p);
 p->state = RUNNING;
 p->last_run = ticks;
-
-if(p->ticks_remaining > 0)
-p->ticks_remaining--;
-
-proc = p;
-switchuvm(p);
-swtch(&cpu->scheduler, p->context);
+swtch(&(c->scheduler), p->context);
 switchkvm();
-
-proc = 0;
+c->proc = 0;
+}
     
 release(&ptable.lock);
 }
