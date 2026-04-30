@@ -631,8 +631,7 @@ chosen = p;
 return chosen;
 }
 
-void
-scheduler(void)
+void mlfqscheduler(void)
 {
 struct proc *p;
 struct cpu *c = mycpu();
