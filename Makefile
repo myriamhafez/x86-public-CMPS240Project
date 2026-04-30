@@ -188,6 +188,9 @@ UPROGS=\
 	_diff\
 	_testthreads\
 	_keyword\
+	_split\
+	_schedulertest\
+	_find\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
