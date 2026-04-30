@@ -134,3 +134,11 @@ void **stack;
 if(argint(0, (int*)&stack) < 0) return -1;
 return join(stack);
 }
+
+int sys_getpriority(void) {
+  return myproc()->priority;
+}
+
+int sys_getticks(void) {
+  return myproc()->total_ticks;
+}
